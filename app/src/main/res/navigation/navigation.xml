@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/navigation"
+        app:startDestination="@id/userFragment">
+
+
+
+    <fragment
+            android:id="@+id/repositoriosFragment"
+            android:name="rodolfo.com.br.gitmvvm.ui.main.fragments.RepositoriosFragment"
+            android:label="Repositorios de {username}"
+            tools:layout="@layout/fragment_repositorios">
+        <argument
+                android:name="username"
+                app:argType="string" />
+    </fragment>
+    <fragment
+            android:id="@+id/userFragment"
+            android:name="rodolfo.com.br.gitmvvm.ui.main.fragments.UserFragment"
+            android:label="Buscar repositorios"
+            tools:layout="@layout/fragment_user">
+        <action
+                android:id="@+id/action_userFragment_to_repositoriosFragment"
+                app:destination="@id/repositoriosFragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+</navigation>
