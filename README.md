@@ -9,3 +9,5 @@ Projeto simples utilizando a arquitetura MVVM.
 * DataBinding
 * KTX
 * [Glide](https://github.com/bumptech/glide) para carregar imagens
+* Stheto para debug nas chamadas da API
+
