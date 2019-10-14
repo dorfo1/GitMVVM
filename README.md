@@ -11,3 +11,7 @@ Projeto simples utilizando a arquitetura MVVM.
 * [Glide](https://github.com/bumptech/glide) para carregar imagens
 * Stheto para debug nas chamadas da API
 
+
+
+<img src="git.gif" width="30%">
+
