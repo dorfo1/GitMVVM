@@ -60,14 +60,14 @@ class RepositoriosFragment : Fragment() {
     }
 
     private fun setObservers() {
-        repositoriosViewModel.repositorios.observe(this, Observer {repositorios ->
+        repositoriosViewModel.repositorios.observe(viewLifecycleOwner, Observer {repositorios ->
             if(repositorios !=null && repositorios.isNotEmpty()){
                 adapter.addRepositorios(repositorios)
             }
         })
 
 
-        repositoriosViewModel.loading.observe(this, Observer { loading ->
+        repositoriosViewModel.loading.observe(viewLifecycleOwner, Observer { loading ->
             if (loading) {
                 progressBar.visibility = View.VISIBLE
             } else {
@@ -75,7 +75,7 @@ class RepositoriosFragment : Fragment() {
             }
         })
 
-        repositoriosViewModel.error.observe(this, Observer {error ->
+        repositoriosViewModel.error.observe(viewLifecycleOwner, Observer {error ->
             if(error){
                 tvMsgErro.visibility = View.VISIBLE
             }else{
