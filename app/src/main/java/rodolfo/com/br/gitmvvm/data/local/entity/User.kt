@@ -15,7 +15,7 @@ data class User(
     @SerializedName("avatar_url")
     val avatarURL: String,
     @SerializedName("name")
-    val nome: String = "Sem nome",
+    val nome: String?,
     val bio: String?,
     @SerializedName("followers")
     val seguidores: String,

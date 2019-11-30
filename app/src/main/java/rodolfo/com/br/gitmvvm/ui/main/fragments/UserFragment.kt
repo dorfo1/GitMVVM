@@ -21,6 +21,7 @@ import com.facebook.stetho.Stetho
 import kotlinx.android.synthetic.main.fragment_user.*
 
 import rodolfo.com.br.gitmvvm.R
+import rodolfo.com.br.gitmvvm.data.local.entity.User
 import rodolfo.com.br.gitmvvm.data.remote.getGitHubAPI
 import rodolfo.com.br.gitmvvm.databinding.FragmentUserBinding
 import rodolfo.com.br.gitmvvm.ui.main.viewmodel.UserViewModel
@@ -28,8 +29,15 @@ import rodolfo.com.br.gitmvvm.ui.main.viewmodel.UserViewModel
 
 class UserFragment : Fragment() {
 
-    private lateinit var userViewModel: UserViewModel
     private lateinit var binding : FragmentUserBinding
+
+    private val factory : UserViewModel.Factory by lazy {
+        UserViewModel.Factory(context!!)
+    }
+
+    private val userViewModel : UserViewModel by lazy {
+        ViewModelProviders.of(this,factory).get(UserViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,8 +49,6 @@ class UserFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
         binding.lifecycleOwner = this
         binding.userViewModel = userViewModel
 

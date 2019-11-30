@@ -1,44 +1,40 @@
 package rodolfo.com.br.gitmvvm.ui.main.viewmodel
 
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
+import androidx.lifecycle.ViewModelProvider
 import rodolfo.com.br.gitmvvm.data.local.entity.Repositorio
-import rodolfo.com.br.gitmvvm.data.remote.getGitHubAPI
+import rodolfo.com.br.gitmvvm.data.repositories.ListRepositoryImpl
+import rodolfo.com.br.gitmvvm.utils.Resource
 
-class RepositoriosViewModel : ViewModel(){
+class RepositoriosViewModel(val listRepository: ListRepositoryImpl) : ViewModel() {
 
-    var repositorios = MutableLiveData<List<Repositorio>>()
-    var loading = MutableLiveData<Boolean>()
-    var error = MutableLiveData<Boolean>()
+    private val listResource: LiveData<Resource<List<Repositorio>>> = listRepository.repositorios
 
-
-    init {
-        loading.value = false
-        error.value = false
+    val repositorios: LiveData<List<Repositorio>> = Transformations.map(listResource) { resource ->
+        if (resource is Resource.Success) resource.data else null
     }
 
-    fun fetchRepositorios(username:String){
-        loading.value = true
-        error.value = false
-        getGitHubAPI().getRepositorios(username)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io())
-            .subscribe(object : DisposableSingleObserver<List<Repositorio>>(){
-                override fun onSuccess(t: List<Repositorio>) {
-                    loading.value = false
-                    repositorios.value = t
-                }
-
-                override fun onError(e: Throwable) {
-                    loading.value = false
-                    error.value = true
-                }
-
-            })
+    val loading: LiveData<Boolean> = Transformations.map(listResource) { resource ->
+        resource is Resource.Loading
     }
 
+    val error: LiveData<Boolean> = Transformations.map(listResource) { resource ->
+        resource is Resource.Error
+    }
+
+    fun fetchRepositorios(login:String){
+        listRepository.fetchRepositories(login)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return RepositoriosViewModel(ListRepositoryImpl()) as T
+        }
+
+    }
 
 }

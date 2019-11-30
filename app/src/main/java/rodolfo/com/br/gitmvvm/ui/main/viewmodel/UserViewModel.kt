@@ -1,91 +1,48 @@
 package rodolfo.com.br.gitmvvm.ui.main.viewmodel
 
-import android.app.Application
+
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.*
-import rodolfo.com.br.gitmvvm.data.local.UserDatabase
+import androidx.lifecycle.*
 import rodolfo.com.br.gitmvvm.data.local.entity.User
-import rodolfo.com.br.gitmvvm.data.local.entity.validaData
-import rodolfo.com.br.gitmvvm.data.remote.getGitHubAPI
+import rodolfo.com.br.gitmvvm.data.repositories.UserRepositoryImpl
+import rodolfo.com.br.gitmvvm.utils.Resource
 
-class UserViewModel(application: Application) : AndroidViewModel(application) {
-
-    val context = application
-    var user = MutableLiveData<User>()
-    var loading = MutableLiveData<Boolean>()
-    var error = MutableLiveData<Boolean>()
-
-    private var job = Job()
-    private var uiScope = CoroutineScope(Dispatchers.Main + job)
+class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel() {
 
 
-    init {
-        loading.value = false
-        error.value = false
+    private val userResource : LiveData<Resource<User>> = userRepository.user
+
+    val user : LiveData<User> = Transformations.map(userResource){ resource ->
+        if(resource is Resource.Success) resource.data else null
     }
 
-    fun fetchUser(username: String) {
-        loading.value = true
-        error.value = false
-        user.value = null
-        uiScope.launch {
-            var userRetornado = UserDatabase.getInstance(context)?.userDao()?.buscarUsuarioPorLogin(username)
-            if (validaUsuario(userRetornado)) {
-                user.value = userRetornado
-                loading.value = false
-                context.Toast("Usuário do Banco")
-            } else {
-                fetchUserRemote(username)
-                context.Toast("Usuário da internet")
-            }
-        }
+    val loading : LiveData<Boolean> = Transformations.map(userResource){ resource ->
+        resource is Resource.Loading
     }
 
-    private fun validaUsuario(userRetornado: User?): Boolean {
-        return (userRetornado != null && userRetornado.validaData())
+    val error : LiveData<Boolean> = Transformations.map(userResource){resource ->
+        resource is Resource.Error
     }
 
-    private fun fetchUserRemote(username: String) {
-        getGitHubAPI().getUser(username)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : DisposableSingleObserver<User>() {
-                override fun onSuccess(userResponse: User) {
-                    user.value = userResponse
-                    loading.value = false
-                    salvaUserNoBanco(userResponse)
-                }
-
-                override fun onError(e: Throwable) {
-                    error.value = true
-                    loading.value = false
-                }
-            })
-    }
-
-    private fun salvaUserNoBanco(userResponse: User) {
-        userResponse.dataUpdate = System.currentTimeMillis() + 5 * 60 * 1000
-        uiScope.launch {
-            UserDatabase.getInstance(context)?.userDao()?.inserir(userResponse)
-        }
+    fun fetchUser(login:String){
+        userRepository.fetchUser(login)
     }
 
     override fun onCleared() {
         super.onCleared()
-        job.cancel()
-        UserDatabase.destroyInstance()
+        userRepository.clearJobs()
+    }
+
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory(val context: Context) : ViewModelProvider.Factory{
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return UserViewModel(UserRepositoryImpl(context)) as T
+        }
+
     }
 }
 
-fun Context.Toast(msg:String){
-    android.widget.Toast.makeText(this,msg, android.widget.Toast.LENGTH_SHORT).show()
-}
 
 
 

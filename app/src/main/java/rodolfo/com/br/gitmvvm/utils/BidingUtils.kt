@@ -13,7 +13,8 @@ import rodolfo.com.br.gitmvvm.data.local.entity.User
 @BindingAdapter("setUserInformation")
 fun TextView.setUserInformation(user: User?){
     user?.let {
-        text = "${it.nome} \nNumero de repositórios : ${it.numeroRepositorios}\nSeguidores : ${it.seguidores}"
+        val nome = it.nome ?: "Nome não informado"
+        text = "$nome \nNumero de repositórios : ${it.numeroRepositorios}\nSeguidores : ${it.seguidores}"
     }
 }
 
@@ -26,13 +27,16 @@ fun ImageView.setUserAvatar(user:User?){
 
 @BindingAdapter("setVisibility")
 fun View.setVisibility(boolean: Boolean?){
+    visibility = View.INVISIBLE
     boolean?.let {
         if(it) this.visibility = View.VISIBLE else  this.visibility = View.GONE
     }
+
 }
 
 @BindingAdapter("setVisibility")
 fun View.setVisibility(user: User?){
+    visibility = View.INVISIBLE
     if(user!=null) this.visibility = View.VISIBLE else this.visibility = View.INVISIBLE
 }
 

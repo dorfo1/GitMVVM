@@ -21,14 +21,23 @@ import rodolfo.com.br.gitmvvm.ui.main.viewmodel.RepositoriosViewModel
 
 class RepositoriosFragment : Fragment() {
 
-    private lateinit var repositoriosViewModel: RepositoriosViewModel
-    private lateinit var adapter : RepositoriosAdapter
+
+    private val adapter : RepositoriosAdapter by lazy {
+        RepositoriosAdapter(ArrayList())
+    }
+
+    private val factory : RepositoriosViewModel.Factory by lazy {
+        RepositoriosViewModel.Factory()
+    }
+
+    private val repositoriosViewModel : RepositoriosViewModel by lazy {
+        ViewModelProviders.of(this,factory).get(RepositoriosViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_repositorios, container, false)
     }
 
@@ -37,9 +46,7 @@ class RepositoriosFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         var args = arguments?.let { RepositoriosFragmentArgs.fromBundle(it) }
-        repositoriosViewModel = ViewModelProviders.of(this).get(RepositoriosViewModel::class.java)
 
-        adapter = RepositoriosAdapter(ArrayList())
         rvRepositorios.adapter = adapter
         rvRepositorios.layoutManager = LinearLayoutManager(context)
 
@@ -60,14 +67,14 @@ class RepositoriosFragment : Fragment() {
     }
 
     private fun setObservers() {
-        repositoriosViewModel.repositorios.observe(viewLifecycleOwner, Observer {repositorios ->
-            if(repositorios !=null && repositorios.isNotEmpty()){
-                adapter.addRepositorios(repositorios)
+        repositoriosViewModel.repositorios.observe(viewLifecycleOwner, Observer {repos ->
+            if(repos !=null && repos.isNotEmpty()){
+                adapter.addRepositorios(repos)
             }
         })
 
-
         repositoriosViewModel.loading.observe(viewLifecycleOwner, Observer { loading ->
+            Log.d("Teste","Loading:{?$loading}")
             if (loading) {
                 progressBar.visibility = View.VISIBLE
             } else {
