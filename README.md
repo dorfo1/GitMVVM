@@ -13,5 +13,4 @@ Projeto simples utilizando a arquitetura MVVM.
 
 
 
-<img src="git.gif" width="30%">
-
+<img src="Screenshot_1575153033.png" width="30%"> <img src="Screenshot_1575153047.png" width="30%">
